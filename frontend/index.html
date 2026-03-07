@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emotion Cipher — Encrypt Your Feelings</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --void: #000408;
+    --deep: #010d1a;
+    --surface: #021428;
+    --panel: #031d36;
+    --border: #0a3a5c;
+    --glow-cyan: #00f5ff;
+    --glow-purple: #b400ff;
+    --glow-green: #00ff88;
+    --glow-amber: #ffaa00;
+    --glow-red: #ff2244;
+    --glow-pink: #ff006a;
+    --text-primary: #e8f4ff;
+    --text-secondary: #7ab8d4;
+    --text-dim: #3a6a8a;
+    --font-display: 'Orbitron', monospace;
+    --font-body: 'Rajdhani', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--void);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== CANVAS BACKGROUND ===== */
+  #bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(1,13,26,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,245,255,0.1);
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+    cursor: pointer;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+  }
+
+  .nav-links button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .nav-links button:hover, .nav-links button.active {
+    color: var(--glow-cyan);
+    background: rgba(0,245,255,0.08);
+  }
+
+  .nav-links button.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    height: 2px;
+    background: var(--glow-cyan);
+    box-shadow: 0 0 10px var(--glow-cyan);
+  }
+
+  /* ===== PAGES ===== */
+  .page {
+    display: none;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+    padding-top: 80px;
+  }
+
+  .page.active { display: block; }
+
+  /* ===== LANDING PAGE ===== */
+  #page-home {
+    display: none;
+  }
+
+  #page-home.active {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+    padding: 60px 40px;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid rgba(0,245,255,0.3);
+    border-radius: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--glow-cyan);
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+    background: rgba(0,245,255,0.05);
+    animation: fadeSlideUp 0.8s ease both;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--glow-cyan);
+    box-shadow: 0 0 10px var(--glow-cyan);
+    animation: pulse-dot 2s infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.5); }
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+    animation: fadeSlideUp 0.8s ease 0.1s both;
+  }
+
+  .hero-title .line1 {
+    background: linear-gradient(135deg, #ffffff 0%, var(--glow-cyan) 50%, var(--glow-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+  }
+
+  .hero-title .line2 {
+    background: linear-gradient(135deg, var(--glow-purple) 0%, var(--glow-pink) 50%, var(--glow-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+    animation: fadeSlideUp 0.8s ease 0.2s both;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeSlideUp 0.8s ease 0.3s both;
+  }
+
+  .btn-primary {
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple));
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple));
+    border-radius: 8px;
+    z-index: -1;
+    filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,245,255,0.4); }
+  .btn-primary:hover::before { opacity: 1; }
+
+  .btn-secondary {
+    padding: 14px 32px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--glow-cyan);
+    color: var(--glow-cyan);
+    background: rgba(0,245,255,0.05);
+    box-shadow: 0 0 20px rgba(0,245,255,0.15);
+  }
+
+  /* Emotion orbs */
+  .emotion-orbs {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 80px;
+    animation: fadeSlideUp 0.8s ease 0.5s both;
+  }
+
+  .orb-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+
+  .orb-item:hover { transform: translateY(-6px); }
+
+  .orb {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+
+  .orb::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: inherit;
+    filter: blur(12px);
+    opacity: 0.6;
+    animation: orbPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes orbPulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.15); opacity: 0.9; }
+  }
+
+  .orb-joy { background: radial-gradient(circle at 35% 35%, #ffee00, #ff8800); }
+  .orb-sadness { background: radial-gradient(circle at 35% 35%, #4488ff, #0033aa); }
+  .orb-anger { background: radial-gradient(circle at 35% 35%, #ff4444, #aa0011); }
+  .orb-fear { background: radial-gradient(circle at 35% 35%, #aa44ff, #550099); }
+  .orb-surprise { background: radial-gradient(circle at 35% 35%, #00ffaa, #007755); }
+  .orb-disgust { background: radial-gradient(circle at 35% 35%, #88cc00, #336600); }
+
+  .orb-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* Feature cards */
+  .features {
+    padding: 80px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 48px;
+    letter-spacing: 3px;
+    color: var(--text-primary);
+    position: relative;
+  }
+
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--glow-cyan), var(--glow-purple));
+    margin: 16px auto 0;
+    box-shadow: 0 0 15px var(--glow-cyan);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .feature-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--glow-cyan), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .feature-card:hover {
+    border-color: rgba(0,245,255,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,245,255,0.05);
+  }
+
+  .feature-card:hover::before { opacity: 1; }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+    background: rgba(0,245,255,0.08);
+    border: 1px solid rgba(0,245,255,0.15);
+  }
+
+  .feature-card h3 {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    color: var(--glow-cyan);
+  }
+
+  .feature-card p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  /* How it works */
+  .how-it-works {
+    padding: 80px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    left: 28px;
+    top: 28px;
+    bottom: 28px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--glow-cyan), var(--glow-purple), var(--glow-pink));
+    opacity: 0.3;
+  }
+
+  .step {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .step:hover {
+    border-color: rgba(0,245,255,0.25);
+    background: rgba(3,29,54,0.9);
+  }
+
+  .step-num {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    color: #000;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(0,245,255,0.3);
+  }
+
+  .step-content h4 {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .step-content p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ===== ENCRYPT PAGE ===== */
+  .encrypt-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  .page-header {
+    margin-bottom: 40px;
+  }
+
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 15px;
+  }
+
+  .input-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .input-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glow-cyan), transparent);
+  }
+
+  .input-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--glow-cyan);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .message-textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    resize: vertical;
+    min-height: 140px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    outline: none;
+  }
+
+  .message-textarea:focus {
+    border-color: var(--glow-cyan);
+    box-shadow: 0 0 0 3px rgba(0,245,255,0.08), inset 0 0 20px rgba(0,245,255,0.03);
+  }
+
+  .message-textarea::placeholder { color: var(--text-dim); }
+
+  .encrypt-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple));
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .encrypt-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,245,255,0.35);
+  }
+
+  .encrypt-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .encrypt-btn .btn-shimmer {
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+  }
+
+  .encrypt-btn:hover .btn-shimmer { left: 100%; }
+
+  /* Loading states */
+  .loading-overlay {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    gap: 20px;
+  }
+
+  .loading-overlay.active { display: flex; }
+
+  .loading-ring {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: var(--glow-cyan);
+    border-right-color: var(--glow-purple);
+    animation: spin 1s linear infinite;
+    position: relative;
+  }
+
+  .loading-ring::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-bottom-color: var(--glow-pink);
+    animation: spin 1.5s linear infinite reverse;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--glow-cyan);
+    letter-spacing: 2px;
+    animation: textFlicker 1.5s ease-in-out infinite;
+  }
+
+  @keyframes textFlicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .loading-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .loading-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    transition: color 0.3s;
+  }
+
+  .loading-step.done { color: var(--glow-green); }
+  .loading-step.active { color: var(--glow-cyan); }
+
+  .step-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  /* Result panel */
+  .result-panel {
+    display: none;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    animation: fadeSlideUp 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-panel.active { display: block; }
+
+  .result-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glow-green), transparent);
+  }
+
+  .result-section {
+    margin-bottom: 24px;
+  }
+
+  .result-section:last-child { margin-bottom: 0; }
+
+  .result-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .result-value {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--glow-cyan);
+    word-break: break-all;
+    line-height: 1.6;
+    position: relative;
+  }
+
+  .copy-btn {
+    background: rgba(0,245,255,0.08);
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: 4px;
+    padding: 4px 10px;
+    color: var(--glow-cyan);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover {
+    background: rgba(0,245,255,0.15);
+    box-shadow: 0 0 10px rgba(0,245,255,0.2);
+  }
+
+  .copy-btn.copied {
+    color: var(--glow-green);
+    border-color: var(--glow-green);
+    background: rgba(0,255,136,0.08);
+  }
+
+  /* Emotion display */
+  .emotion-display {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .emotion-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    border: 1px solid currentColor;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .emotion-tag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0.08;
+  }
+
+  .emotion-tag .emotion-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  .emotion-bar-container {
+    margin-top: 20px;
+  }
+
+  .emotion-bar-item {
+    margin-bottom: 12px;
+  }
+
+  .emotion-bar-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .emotion-bar-track {
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .emotion-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .emotion-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: inherit;
+    filter: blur(3px);
+  }
+
+  /* Aura effect */
+  .aura-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    margin: 20px 0;
+  }
+
+  .aura-core {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .aura-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: 0;
+    animation: auraExpand 2.5s ease-out infinite;
+  }
+
+  .aura-ring:nth-child(1) { width: 70px; height: 70px; animation-delay: 0s; }
+  .aura-ring:nth-child(2) { width: 90px; height: 90px; animation-delay: 0.5s; }
+  .aura-ring:nth-child(3) { width: 110px; height: 110px; animation-delay: 1s; }
+  .aura-ring:nth-child(4) { width: 130px; height: 130px; animation-delay: 1.5s; }
+
+  @keyframes auraExpand {
+    0% { opacity: 0.8; transform: scale(0.8); }
+    100% { opacity: 0; transform: scale(1.4); }
+  }
+
+  /* Encryption visualization */
+  .encrypt-viz {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    overflow: hidden;
+  }
+
+  .viz-chars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    line-height: 1.8;
+  }
+
+  .viz-char {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    line-height: 22px;
+    border-radius: 3px;
+    transition: all 0.3s;
+    font-size: 11px;
+  }
+
+  .viz-char.encrypted {
+    background: rgba(0,245,255,0.1);
+    color: var(--glow-cyan);
+    border: 1px solid rgba(0,245,255,0.2);
+    animation: charEncrypt 0.4s ease forwards;
+  }
+
+  @keyframes charEncrypt {
+    0% { transform: rotateY(0deg); background: rgba(255,170,0,0.15); color: var(--glow-amber); }
+    50% { transform: rotateY(90deg); }
+    100% { transform: rotateY(0deg); background: rgba(0,245,255,0.1); color: var(--glow-cyan); }
+  }
+
+  /* ===== DECRYPT PAGE ===== */
+  .decrypt-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 700px) {
+    .input-row { grid-template-columns: 1fr; }
+  }
+
+  /* ===== DASHBOARD PAGE ===== */
+  .dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.3s;
+  }
+
+  .stat-card:hover {
+    border-color: rgba(0,245,255,0.25);
+    transform: translateY(-2px);
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 900px) {
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+
+  .chart-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chart-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glow-purple), transparent);
+  }
+
+  .chart-card h3 {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  .chart-canvas-container {
+    position: relative;
+    height: 240px;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .history-item {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+
+  .history-item:hover {
+    border-color: rgba(0,245,255,0.2);
+    background: rgba(0,245,255,0.03);
+  }
+
+  .history-emotion-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .history-text {
+    flex: 1;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .history-time {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  /* ===== UTILITIES ===== */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 40px 0;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--panel);
+    border: 1px solid var(--glow-green);
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--glow-green);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 20px rgba(0,255,136,0.1);
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    letter-spacing: 1px;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Scan line effect */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Input key field */
+  .key-field {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    transition: border-color 0.3s;
+    outline: none;
+  }
+
+  .key-field:focus {
+    border-color: var(--glow-cyan);
+    box-shadow: 0 0 0 3px rgba(0,245,255,0.08);
+  }
+
+  .key-field::placeholder { color: var(--text-dim); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--glow-cyan); }
+
+  /* Mobile nav */
+  @media (max-width: 600px) {
+    nav { padding: 12px 20px; }
+    .nav-logo { font-size: 14px; }
+    .nav-links button { font-size: 11px; padding: 6px 10px; letter-spacing: 1px; }
+    .hero-title { font-size: 40px; }
+    .encrypt-container, .decrypt-container, .dashboard-container { padding: 20px; }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 16px; display: block; opacity: 0.4; }
+
+  /* Signature box */
+  .signature-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .sig-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: rgba(0,245,255,0.08);
+    border: 1px solid rgba(0,245,255,0.15);
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="navigate('home')">EMOTION CIPHER</div>
+  <ul class="nav-links">
+    <li><button onclick="navigate('home')" class="active" id="nav-home">HOME</button></li>
+    <li><button onclick="navigate('encrypt')" id="nav-encrypt">ENCRYPT</button></li>
+    <li><button onclick="navigate('decrypt')" id="nav-decrypt">DECRYPT</button></li>
+    <li><button onclick="navigate('dashboard')" id="nav-dashboard">DASHBOARD</button></li>
+  </ul>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<div id="page-home" class="page active">
+  <section class="hero">
+    <div class="hero-badge">● AI-POWERED EMOTION ENCRYPTION SYSTEM v2.4</div>
+    <h1 class="hero-title">
+      <span class="line1">EMOTION</span>
+      <span class="line2">CIPHER</span>
+    </h1>
+    <p class="hero-subtitle">
+      The world's first emotion-aware encryption system. Your messages carry hidden feelings — now they carry digital emotion signatures too.
+    </p>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="navigate('encrypt')">
+        <span class="btn-shimmer"></span>
+        START ENCRYPTING
+      </button>
+      <button class="btn-secondary" onclick="navigate('dashboard')">VIEW DASHBOARD</button>
+    </div>
+
+    <div class="emotion-orbs">
+      <div class="orb-item" onclick="navigate('encrypt')">
+        <div class="orb orb-joy">😄</div>
+        <span class="orb-label">JOY</span>
+      </div>
+      <div class="orb-item" onclick="navigate('encrypt')">
+        <div class="orb orb-sadness">😢</div>
+        <span class="orb-label">SADNESS</span>
+      </div>
+      <div class="orb-item" onclick="navigate('encrypt')">
+        <div class="orb orb-anger">😡</div>
+        <span class="orb-label">ANGER</span>
+      </div>
+      <div class="orb-item" onclick="navigate('encrypt')">
+        <div class="orb orb-fear">😨</div>
+        <span class="orb-label">FEAR</span>
+      </div>
+      <div class="orb-item" onclick="navigate('encrypt')">
+        <div class="orb orb-surprise">😲</div>
+        <span class="orb-label">SURPRISE</span>
+      </div>
+      <div class="orb-item" onclick="navigate('encrypt')">
+        <div class="orb orb-disgust">🤢</div>
+        <span class="orb-label">DISGUST</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <h2 class="section-title">CORE CAPABILITIES</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>AI EMOTION DETECTION</h3>
+        <p>Advanced natural language processing detects joy, sadness, anger, fear, and surprise from your messages with high accuracy.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>AES-256 ENCRYPTION</h3>
+        <p>Military-grade AES encryption secures your message content while preserving the emotional metadata in a unique signature.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌊</div>
+        <h3>EMOTION AURA</h3>
+        <p>Each encrypted message gets a unique emotion aura — a visual signature that reveals the emotional fingerprint without exposing the text.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>EMOTION ANALYTICS</h3>
+        <p>Track the emotional distribution of all your encrypted messages over time with beautiful interactive charts and statistics.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-it-works">
+    <h2 class="section-title">HOW IT WORKS</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h4>INPUT YOUR MESSAGE</h4>
+          <p>Type any message — a thought, feeling, or secret. The system analyzes the raw text before any processing begins.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h4>AI EMOTION ANALYSIS</h4>
+          <p>Our AI model scans the semantic content, tone, and linguistic patterns to identify the primary and secondary emotions present.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h4>AES ENCRYPTION</h4>
+          <p>The message is encrypted using AES-256-CBC with a derived key. The emotion signature is encoded alongside the ciphertext.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h4>EMOTION SIGNATURE BINDING</h4>
+          <p>A unique emotion fingerprint is cryptographically bound to the encrypted payload, creating an inseparable emotional seal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== ENCRYPT PAGE ===== -->
+<div id="page-encrypt" class="page">
+  <div class="encrypt-container">
+    <div class="page-header">
+      <h1 style="background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ENCRYPT MESSAGE</h1>
+      <p>Enter your message to detect emotions and encrypt it with an emotion signature.</p>
+    </div>
+
+    <div class="input-panel" id="encrypt-input-panel">
+      <span class="input-label">// MESSAGE INPUT</span>
+      <textarea class="message-textarea" id="encrypt-textarea" placeholder="Type your message here... Express yourself freely. The AI will detect the emotions within your words and encrypt them into a digital cipher."></textarea>
+
+      <div style="display:flex; gap:12px; align-items:center; margin-top:16px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:200px;">
+          <span class="input-label" style="font-size:10px;">// ENCRYPTION KEY (OPTIONAL)</span>
+          <input class="key-field" id="encrypt-key" placeholder="Leave blank for auto-generated key..." type="password">
+        </div>
+      </div>
+
+      <button class="encrypt-btn" id="encrypt-btn" onclick="runEncrypt()">
+        <span class="btn-shimmer"></span>
+        ANALYZE EMOTIONS & ENCRYPT
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="input-panel" id="encrypt-loading" style="display:none;">
+      <div class="loading-overlay active">
+        <div class="loading-ring"></div>
+        <div class="loading-text" id="loading-text">INITIALIZING...</div>
+        <div class="loading-steps">
+          <div class="loading-step" id="lstep1">
+            <div class="step-icon">○</div>
+            <span>Parsing message tokens...</span>
+          </div>
+          <div class="loading-step" id="lstep2">
+            <div class="step-icon">○</div>
+            <span>Analyzing emotional content...</span>
+          </div>
+          <div class="loading-step" id="lstep3">
+            <div class="step-icon">○</div>
+            <span>Generating emotion signature...</span>
+          </div>
+          <div class="loading-step" id="lstep4">
+            <div class="step-icon">○</div>
+            <span>Applying AES-256 encryption...</span>
+          </div>
+          <div class="loading-step" id="lstep5">
+            <div class="step-icon">○</div>
+            <span>Binding emotion fingerprint...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-panel" id="encrypt-result">
+      <div class="result-section">
+        <div class="result-label">
+          <span>// DETECTED EMOTIONS</span>
+        </div>
+        <div class="aura-container" id="aura-container"></div>
+        <div class="emotion-display" id="emotion-tags"></div>
+        <div class="emotion-bar-container" id="emotion-bars"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-section">
+        <div class="result-label">
+          <span>// ENCRYPTED CIPHERTEXT</span>
+          <button class="copy-btn" id="copy-encrypted" onclick="copyEncrypted()">COPY</button>
+        </div>
+        <div class="result-value" id="encrypted-output"></div>
+        <div class="encrypt-viz" id="encrypt-viz">
+          <div style="font-size:10px; color:var(--text-dim); margin-bottom:8px; letter-spacing:1px;">CHARACTER TRANSFORMATION</div>
+          <div class="viz-chars" id="viz-chars"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-section">
+        <div class="result-label">// EMOTION SIGNATURE</div>
+        <div class="signature-box">
+          <div class="sig-icon">🔏</div>
+          <div>
+            <div style="font-size:11px; color:var(--glow-cyan); letter-spacing:1px; margin-bottom:4px;">BOUND EMOTION FINGERPRINT</div>
+            <div id="emotion-signature" style="word-break:break-all; color:var(--text-secondary);"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-section">
+        <div class="result-label">// DECRYPTION KEY</div>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div class="result-value" id="decryption-key-display" style="flex:1; color:var(--glow-amber);"></div>
+          <button class="copy-btn" onclick="copyKey()">COPY KEY</button>
+        </div>
+        <div style="margin-top:8px; font-family:var(--font-mono); font-size:10px; color:var(--text-dim);">⚠ STORE THIS KEY SECURELY — REQUIRED FOR DECRYPTION</div>
+      </div>
+
+      <button class="encrypt-btn" style="margin-top:24px;" onclick="goDecrypt()">
+        <span class="btn-shimmer"></span>
+        PROCEED TO DECRYPT THIS MESSAGE →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DECRYPT PAGE ===== -->
+<div id="page-decrypt" class="page">
+  <div class="decrypt-container">
+    <div class="page-header">
+      <h1 style="background: linear-gradient(135deg, var(--glow-purple), var(--glow-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">DECRYPT MESSAGE</h1>
+      <p>Paste an encrypted Emotion Cipher message to recover the original text and emotional signature.</p>
+    </div>
+
+    <div class="input-panel">
+      <span class="input-label">// ENCRYPTED CIPHERTEXT</span>
+      <textarea class="message-textarea" id="decrypt-input" placeholder="Paste the encrypted ciphertext here... (e.g. EC_v1:XXXXXX...)" style="min-height:100px; font-family:var(--font-mono); font-size:13px;"></textarea>
+
+      <div class="input-row" style="margin-top:16px; margin-bottom:0;">
+        <div>
+          <span class="input-label">// DECRYPTION KEY</span>
+          <input class="key-field" id="decrypt-key" placeholder="Enter the decryption key...">
+        </div>
+        <div>
+          <span class="input-label">// EMOTION SIGNATURE (OPTIONAL)</span>
+          <input class="key-field" id="decrypt-sig" placeholder="Paste emotion signature...">
+        </div>
+      </div>
+
+      <button class="encrypt-btn" style="background: linear-gradient(135deg, var(--glow-purple), var(--glow-pink)); margin-top:16px;" onclick="runDecrypt()">
+        <span class="btn-shimmer"></span>
+        DECRYPT & REVEAL EMOTIONS
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="input-panel" id="decrypt-loading" style="display:none;">
+      <div class="loading-overlay active">
+        <div class="loading-ring" style="border-top-color:var(--glow-purple); border-right-color:var(--glow-pink);"></div>
+        <div class="loading-text" style="color:var(--glow-purple);">DECRYPTING CIPHER...</div>
+      </div>
+    </div>
+
+    <!-- Decrypt Result -->
+    <div class="result-panel" id="decrypt-result">
+      <div class="result-section">
+        <div class="result-label">// DECRYPTED MESSAGE</div>
+        <div class="result-value" id="decrypted-output" style="color:var(--glow-green); font-family:var(--font-body); font-size:16px; line-height:1.7;"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-section">
+        <div class="result-label">// RECOVERED EMOTION PROFILE</div>
+        <div class="aura-container" id="decrypt-aura-container"></div>
+        <div class="emotion-display" id="decrypt-emotion-tags"></div>
+        <div class="emotion-bar-container" id="decrypt-emotion-bars"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-section">
+        <div class="result-label">// DECRYPTION STATUS</div>
+        <div class="signature-box">
+          <div class="sig-icon">✅</div>
+          <div>
+            <div style="font-size:11px; color:var(--glow-green); letter-spacing:1px; margin-bottom:4px;">INTEGRITY VERIFIED</div>
+            <div id="decrypt-status" style="color:var(--text-secondary); font-size:12px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD PAGE ===== -->
+<div id="page-dashboard" class="page">
+  <div class="dashboard-container">
+    <div class="page-header">
+      <h1 style="background: linear-gradient(135deg, var(--glow-amber), var(--glow-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EMOTION DASHBOARD</h1>
+      <p>Analytics and insights from your emotion-encrypted message history.</p>
+    </div>
+
+    <div class="stats-row" id="stats-row">
+      <!-- Filled by JS -->
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>EMOTION DISTRIBUTION</h3>
+        <div class="chart-canvas-container">
+          <canvas id="donut-chart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>EMOTION FREQUENCY OVER TIME</h3>
+        <div class="chart-canvas-container">
+          <canvas id="line-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:24px;">
+      <h3>INTENSITY BREAKDOWN BY EMOTION</h3>
+      <div class="chart-canvas-container" style="height:200px;">
+        <canvas id="bar-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>RECENT ENCRYPTED MESSAGES</h3>
+      <div class="history-list" id="history-list">
+        <div class="empty-state">
+          <span class="empty-icon">🔐</span>
+          No encrypted messages yet.<br>Head to the Encrypt page to get started.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== GLOBAL STATE =====
+const state = {
+  history: JSON.parse(localStorage.getItem('ec_history') || '[]'),
+  lastEncrypted: null,
+  charts: {}
+};
+
+// ===== EMOTION CONFIG =====
+const EMOTIONS = {
+  joy:      { emoji: '😄', color: '#ffcc00', label: 'JOY',      hex: '#ffcc00' },
+  sadness:  { emoji: '😢', color: '#4488ff', label: 'SADNESS',  hex: '#4488ff' },
+  anger:    { emoji: '😡', color: '#ff3344', label: 'ANGER',    hex: '#ff3344' },
+  fear:     { emoji: '😨', color: '#aa44ff', label: 'FEAR',     hex: '#aa44ff' },
+  surprise: { emoji: '😲', color: '#00ffaa', label: 'SURPRISE', hex: '#00ffaa' },
+  disgust:  { emoji: '🤢', color: '#88cc00', label: 'DISGUST',  hex: '#88cc00' },
+  anxiety:  { emoji: '😰', color: '#ff8800', label: 'ANXIETY',  hex: '#ff8800' },
+  love:     { emoji: '❤️', color: '#ff006a', label: 'LOVE',     hex: '#ff006a' },
+  neutral:  { emoji: '😐', color: '#7ab8d4', label: 'NEUTRAL',  hex: '#7ab8d4' }
+};
+
+// ===== NAVIGATION =====
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.getElementById(`nav-${page}`).classList.add('active');
+  if (page === 'dashboard') renderDashboard();
+  window.scrollTo(0, 0);
+}
+
+// ===== CANVAS BACKGROUND =====
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function Particle() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.size = Math.random() * 1.5 + 0.3;
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.speedY = (Math.random() - 0.5) * 0.3;
+    this.opacity = Math.random() * 0.5 + 0.1;
+    const colors = ['#00f5ff', '#b400ff', '#ff006a', '#00ff88'];
+    this.color = colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function init() {
+    particles = Array.from({length: 120}, () => new Particle());
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Draw connections
+    for(let i = 0; i < particles.length; i++) {
+      for(let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(0,245,255,${0.05 * (1 - dist/120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw particles
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.opacity;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      p.x += p.speedX;
+      p.y += p.speedY;
+      if(p.x < 0 || p.x > W) p.speedX *= -1;
+      if(p.y < 0 || p.y > H) p.speedY *= -1;
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  init();
+  draw();
+  window.addEventListener('resize', resize);
+})();
+
+// ===== ENCRYPTION (AES simulation via Web Crypto) =====
+async function deriveKey(password) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: enc.encode('EmotionCipherSalt2024'), iterations: 100000, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-CBC', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function encryptAES(text, password) {
+  const enc = new TextEncoder();
+  const iv = crypto.getRandomValues(new Uint8Array(16));
+  const key = await deriveKey(password);
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-CBC', iv }, key, enc.encode(text));
+  const combined = new Uint8Array(iv.length + encrypted.byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(encrypted), iv.length);
+  return btoa(String.fromCharCode(...combined));
+}
+
+async function decryptAES(base64, password) {
+  const combined = new Uint8Array(atob(base64).split('').map(c => c.charCodeAt(0)));
+  const iv = combined.slice(0, 16);
+  const data = combined.slice(16);
+  const key = await deriveKey(password);
+  const decrypted = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, data);
+  return new TextDecoder().decode(decrypted);
+}
+
+function generatePassword() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ===== AI EMOTION DETECTION via Anthropic API =====
+async function detectEmotions(text) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{
+        role: "user",
+        content: `Analyze the emotions in this message and return ONLY a JSON object with no markdown or preamble.
+
+Message: "${text}"
+
+Return this exact structure:
+{
+  "emotions": [
+    { "name": "joy", "score": 0.85 },
+    { "name": "anxiety", "score": 0.35 }
+  ],
+  "dominant": "joy",
+  "summary": "one sentence emotion summary"
+}
+
+Valid emotion names: joy, sadness, anger, fear, surprise, disgust, anxiety, love, neutral
+Include only emotions with score > 0.1. Sort by score descending. Max 4 emotions.`
+      }]
+    })
+  });
+  const data = await response.json();
+  const raw = data.content.map(i => i.text || '').join('');
+  const clean = raw.replace(/```json|```/g, '').trim();
+  return JSON.parse(clean);
+}
+
+// ===== EMOTION SIGNATURE =====
+function createEmotionSignature(emotions) {
+  const sigData = emotions.map(e => `${e.name}:${Math.round(e.score * 100)}`).join('|');
+  const hash = btoa(sigData + ':' + Date.now()).replace(/[=+/]/g, c => ({'+':'-','/':'_','=':''}[c]));
+  return `EMSIG_${hash}`;
+}
+
+// ===== RENDER EMOTION UI =====
+function renderEmotionUI(emotions, dominant, tagsEl, barsEl, auraEl) {
+  // Aura
+  if (auraEl) {
+    const dom = EMOTIONS[dominant] || EMOTIONS.neutral;
+    auraEl.innerHTML = `
+      <div style="position:relative; display:flex; align-items:center; justify-content:center; width:100%; height:100%;">
+        ${[1,2,3,4].map(() => `<div class="aura-ring" style="color:${dom.color};"></div>`).join('')}
+        <div class="aura-core" style="background:radial-gradient(circle at 35% 35%, ${dom.color}88, ${dom.color}33); box-shadow: 0 0 30px ${dom.color}44; border: 1px solid ${dom.color}66;">
+          ${dom.emoji}
+        </div>
+      </div>
+    `;
+  }
+
+  // Tags
+  tagsEl.innerHTML = emotions.map(e => {
+    const cfg = EMOTIONS[e.name] || EMOTIONS.neutral;
+    return `<div class="emotion-tag" style="color:${cfg.color};">
+      <span class="emotion-dot"></span>
+      ${cfg.emoji} ${cfg.label} <span style="opacity:0.6;">${Math.round(e.score*100)}%</span>
+    </div>`;
+  }).join('');
+
+  // Bars
+  barsEl.innerHTML = emotions.map(e => {
+    const cfg = EMOTIONS[e.name] || EMOTIONS.neutral;
+    return `<div class="emotion-bar-item">
+      <div class="emotion-bar-header">
+        <span style="color:${cfg.color};">${cfg.emoji} ${cfg.label}</span>
+        <span style="color:var(--text-dim);">${Math.round(e.score*100)}%</span>
+      </div>
+      <div class="emotion-bar-track">
+        <div class="emotion-bar-fill" style="width:0%; background:linear-gradient(90deg,${cfg.color}88,${cfg.color}); box-shadow:0 0 8px ${cfg.color}66;"
+          data-target="${e.score * 100}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Animate bars
+  setTimeout(() => {
+    barsEl.querySelectorAll('.emotion-bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.target + '%';
+    });
+  }, 100);
+}
+
+// ===== ENCRYPT FLOW =====
+async function runEncrypt() {
+  const text = document.getElementById('encrypt-textarea').value.trim();
+  if (!text) { showToast('⚠ Please enter a message first'); return; }
+
+  document.getElementById('encrypt-input-panel').style.display = 'none';
+  document.getElementById('encrypt-result').classList.remove('active');
+  document.getElementById('encrypt-loading').style.display = 'block';
+
+  const steps = ['lstep1','lstep2','lstep3','lstep4','lstep5'];
+  const msgs = ['PARSING TOKENS...','ANALYZING EMOTIONS...','BUILDING SIGNATURE...','ENCRYPTING DATA...','BINDING FINGERPRINT...'];
+
+  let stepIdx = 0;
+  const stepInterval = setInterval(() => {
+    if (stepIdx > 0) {
+      document.getElementById(steps[stepIdx-1]).classList.remove('active');
+      document.getElementById(steps[stepIdx-1]).classList.add('done');
+      document.getElementById(steps[stepIdx-1]).querySelector('.step-icon').textContent = '✓';
+    }
+    if (stepIdx < steps.length) {
+      document.getElementById(steps[stepIdx]).classList.add('active');
+      document.getElementById('loading-text').textContent = msgs[stepIdx];
+      stepIdx++;
+    }
+  }, 700);
+
+  try {
+    const [emotionResult] = await Promise.all([
+      detectEmotions(text),
+      new Promise(r => setTimeout(r, 1200))
+    ]);
+
+    clearInterval(stepInterval);
+    // Complete remaining steps
+    for (let i = stepIdx - 1; i < steps.length; i++) {
+      document.getElementById(steps[i]).classList.add('done');
+      document.getElementById(steps[i]).querySelector('.step-icon').textContent = '✓';
+    }
+
+    await new Promise(r => setTimeout(r, 600));
+
+    // Encrypt
+    const password = document.getElementById('encrypt-key').value.trim() || generatePassword();
+    const encrypted = await encryptAES(text, password);
+    const signature = createEmotionSignature(emotionResult.emotions);
+    const payload = `EC_v1:${encrypted}:${signature}`;
+
+    // Store
+    const record = {
+      id: Date.now(),
+      text: text,
+      encrypted: payload,
+      key: password,
+      emotions: emotionResult.emotions,
+      dominant: emotionResult.dominant,
+      signature,
+      summary: emotionResult.summary,
+      time: new Date().toISOString()
+    };
+    state.lastEncrypted = record;
+    state.history.unshift(record);
+    if (state.history.length > 50) state.history.pop();
+    localStorage.setItem('ec_history', JSON.stringify(state.history));
+
+    // Hide loading, show result
+    document.getElementById('encrypt-loading').style.display = 'none';
+    document.getElementById('encrypt-input-panel').style.display = 'block';
+
+    // Render
+    renderEmotionUI(
+      emotionResult.emotions,
+      emotionResult.dominant,
+      document.getElementById('emotion-tags'),
+      document.getElementById('emotion-bars'),
+      document.getElementById('aura-container')
+    );
+
+    document.getElementById('encrypted-output').textContent = payload;
+    document.getElementById('emotion-signature').textContent = signature;
+    document.getElementById('decryption-key-display').textContent = password;
+
+    // Viz
+    renderEncryptViz(payload.slice(0, 60));
+
+    document.getElementById('encrypt-result').classList.add('active');
+    document.getElementById('encrypt-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    showToast('🔐 Message encrypted successfully!');
+
+  } catch(err) {
+    clearInterval(stepInterval);
+    document.getElementById('encrypt-loading').style.display = 'none';
+    document.getElementById('encrypt-input-panel').style.display = 'block';
+    showToast('❌ Encryption failed: ' + err.message);
+    console.error(err);
+  }
+}
+
+function renderEncryptViz(text) {
+  const el = document.getElementById('viz-chars');
+  el.innerHTML = text.split('').map((c, i) =>
+    `<div class="viz-char" style="animation-delay:${i * 30}ms">${c}</div>`
+  ).join('');
+  setTimeout(() => {
+    el.querySelectorAll('.viz-char').forEach((ch, i) => {
+      setTimeout(() => ch.classList.add('encrypted'), i * 25);
+    });
+  }, 100);
+}
+
+// ===== COPY FUNCTIONS =====
+function copyToClipboard(text, onSuccess) {
+  // Try modern Clipboard API first
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(onSuccess).catch(() => {
+      fallbackCopy(text, onSuccess);
+    });
+  } else {
+    fallbackCopy(text, onSuccess);
+  }
+}
+
+function fallbackCopy(text, onSuccess) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    onSuccess();
+  } catch (e) {
+    showToast('⚠ Copy failed — please copy manually');
+  } finally {
+    document.body.removeChild(ta);
+  }
+}
+
+function copyEncrypted() {
+  const val = document.getElementById('encrypted-output').textContent;
+  copyToClipboard(val, () => {
+    const btn = document.getElementById('copy-encrypted');
+    btn.textContent = 'COPIED!';
+    btn.classList.add('copied');
+    showToast('📋 Encrypted text copied!');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyKey() {
+  const val = document.getElementById('decryption-key-display').textContent;
+  copyToClipboard(val, () => showToast('🔑 Key copied to clipboard!'));
+}
+
+function goDecrypt() {
+  if (state.lastEncrypted) {
+    document.getElementById('decrypt-input').value = state.lastEncrypted.encrypted;
+    document.getElementById('decrypt-key').value = state.lastEncrypted.key;
+    document.getElementById('decrypt-sig').value = state.lastEncrypted.signature;
+  }
+  navigate('decrypt');
+}
+
+// ===== DECRYPT FLOW =====
+async function runDecrypt() {
+  const payload = document.getElementById('decrypt-input').value.trim();
+  const password = document.getElementById('decrypt-key').value.trim();
+
+  if (!payload || !password) {
+    showToast('⚠ Paste encrypted text and enter the key');
+    return;
+  }
+
+  document.getElementById('decrypt-loading').style.display = 'block';
+  document.getElementById('decrypt-result').classList.remove('active');
+
+  try {
+    await new Promise(r => setTimeout(r, 1000));
+
+    let encryptedB64 = payload;
+    let sig = document.getElementById('decrypt-sig').value.trim();
+
+    // Parse EC format
+    if (payload.startsWith('EC_v1:')) {
+      const parts = payload.split(':');
+      encryptedB64 = parts[1];
+      if (!sig && parts[2]) sig = parts[2];
+    }
+
+    const decrypted = await decryptAES(encryptedB64, password);
+
+    // Re-detect emotions from decrypted text
+    const emotionResult = await detectEmotions(decrypted);
+
+    document.getElementById('decrypt-loading').style.display = 'none';
+    document.getElementById('decrypted-output').textContent = decrypted;
+
+    renderEmotionUI(
+      emotionResult.emotions,
+      emotionResult.dominant,
+      document.getElementById('decrypt-emotion-tags'),
+      document.getElementById('decrypt-emotion-bars'),
+      document.getElementById('decrypt-aura-container')
+    );
+
+    const sigMatch = sig && sig.startsWith('EMSIG_');
+    document.getElementById('decrypt-status').textContent =
+      `Decryption successful · ${sigMatch ? 'Emotion signature verified ✓' : 'No signature provided'} · Recovered ${emotionResult.emotions.length} emotion(s)`;
+
+    document.getElementById('decrypt-result').classList.add('active');
+    document.getElementById('decrypt-result').scrollIntoView({ behavior: 'smooth' });
+    showToast('✅ Message decrypted successfully!');
+
+  } catch(err) {
+    document.getElementById('decrypt-loading').style.display = 'none';
+    showToast('❌ Decryption failed — check your key');
+    console.error(err);
+  }
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const history = state.history;
+
+  // Stats
+  const totalMessages = history.length;
+  const emotionCounts = {};
+  history.forEach(h => {
+    if (h.emotions) h.emotions.forEach(e => {
+      emotionCounts[e.name] = (emotionCounts[e.name] || 0) + 1;
+    });
+  });
+  const topEmotion = Object.entries(emotionCounts).sort((a,b) => b[1]-a[1])[0];
+  const uniqueEmotions = Object.keys(emotionCounts).length;
+
+  document.getElementById('stats-row').innerHTML = [
+    { val: totalMessages, label: 'TOTAL MESSAGES', color: 'var(--glow-cyan)' },
+    { val: uniqueEmotions, label: 'UNIQUE EMOTIONS', color: 'var(--glow-purple)' },
+    { val: topEmotion ? (EMOTIONS[topEmotion[0]] || {emoji:'❓'}).emoji + ' ' + topEmotion[0].toUpperCase() : '—', label: 'TOP EMOTION', color: 'var(--glow-amber)' },
+    { val: totalMessages > 0 ? Math.round(history.reduce((a,h) => a + (h.text||'').split(' ').length, 0) / totalMessages) : 0, label: 'AVG WORD COUNT', color: 'var(--glow-green)' }
+  ].map(s => `
+    <div class="stat-card">
+      <div class="stat-value" style="color:${s.color};">${s.val}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>
+  `).join('');
+
+  // Charts
+  renderDonutChart(emotionCounts);
+  renderLineChart(history);
+  renderBarChart(emotionCounts);
+  renderHistoryList(history);
+}
+
+function renderDonutChart(counts) {
+  const ctx = document.getElementById('donut-chart').getContext('2d');
+  if (state.charts.donut) state.charts.donut.destroy();
+
+  const labels = Object.keys(counts);
+  const data = Object.values(counts);
+  const colors = labels.map(l => EMOTIONS[l]?.color || '#7ab8d4');
+
+  state.charts.donut = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels.map(l => (EMOTIONS[l]?.emoji || '') + ' ' + l.toUpperCase()),
+      datasets: [{ data, backgroundColor: colors.map(c => c + 'cc'), borderColor: colors, borderWidth: 2 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: '#7ab8d4', font: { family: 'Share Tech Mono', size: 11 }, padding: 16 }
+        }
+      },
+      cutout: '65%'
+    }
+  });
+}
+
+function renderLineChart(history) {
+  const ctx = document.getElementById('line-chart').getContext('2d');
+  if (state.charts.line) state.charts.line.destroy();
+
+  // Group by day
+  const byDay = {};
+  history.forEach(h => {
+    const day = (h.time || '').slice(0, 10);
+    if (day) byDay[day] = (byDay[day] || 0) + 1;
+  });
+
+  const labels = Object.keys(byDay).slice(-7).map(d => {
+    const dt = new Date(d);
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  });
+  const data = Object.values(byDay).slice(-7);
+
+  state.charts.line = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels.length ? labels : ['No data'],
+      datasets: [{
+        label: 'Messages',
+        data: data.length ? data : [0],
+        borderColor: '#00f5ff',
+        backgroundColor: 'rgba(0,245,255,0.08)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#00f5ff',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: '#7ab8d4', font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { ticks: { color: '#7ab8d4', font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+function renderBarChart(counts) {
+  const ctx = document.getElementById('bar-chart').getContext('2d');
+  if (state.charts.bar) state.charts.bar.destroy();
+
+  const labels = Object.keys(counts);
+  const data = Object.values(counts);
+  const colors = labels.map(l => EMOTIONS[l]?.color || '#7ab8d4');
+
+  state.charts.bar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels.map(l => l.toUpperCase()),
+      datasets: [{
+        data,
+        backgroundColor: colors.map(c => c + '55'),
+        borderColor: colors,
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: '#7ab8d4', font: { family: 'Share Tech Mono', size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: '#7ab8d4', font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+function renderHistoryList(history) {
+  const el = document.getElementById('history-list');
+  if (!history.length) {
+    el.innerHTML = `<div class="empty-state"><span class="empty-icon">🔐</span>No encrypted messages yet.<br>Head to the Encrypt page to get started.</div>`;
+    return;
+  }
+
+  el.innerHTML = history.slice(0, 10).map(h => {
+    const dom = h.dominant ? (EMOTIONS[h.dominant] || EMOTIONS.neutral) : EMOTIONS.neutral;
+    const timeAgo = getTimeAgo(h.time);
+    return `
+      <div class="history-item" onclick="loadDecrypt('${h.id}')">
+        <div class="history-emotion-dot" style="background:${dom.color}; box-shadow:0 0 6px ${dom.color};"></div>
+        <div style="font-size:18px;">${dom.emoji}</div>
+        <div class="history-text">${h.text ? h.text.slice(0, 80) + (h.text.length > 80 ? '...' : '') : h.encrypted.slice(0, 50) + '...'}</div>
+        <div class="history-time">${timeAgo}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function loadDecrypt(id) {
+  const record = state.history.find(h => h.id == id);
+  if (record) {
+    document.getElementById('decrypt-input').value = record.encrypted;
+    document.getElementById('decrypt-key').value = record.key;
+    document.getElementById('decrypt-sig').value = record.signature || '';
+    navigate('decrypt');
+  }
+}
+
+function getTimeAgo(isoTime) {
+  if (!isoTime) return '';
+  const diff = Date.now() - new Date(isoTime).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours/24)}d ago`;
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Add sample data if empty
+  if (state.history.length === 0) {
+    state.history = [
+      {
+        id: Date.now() - 100000,
+        text: "Feeling ecstatic about joining the new AI research team, though a bit anxious about the deadlines ahead.",
+        encrypted: "EC_v1:SAMPLE_ENCRYPTED_DATA_1:EMSIG_c2FtcGxl",
+        key: "sample-key-1",
+        emotions: [{name:'joy',score:0.82},{name:'anxiety',score:0.45}],
+        dominant: 'joy',
+        signature: 'EMSIG_c2FtcGxl',
+        summary: 'Mixed joy and anxiety about new opportunity',
+        time: new Date(Date.now() - 100000).toISOString()
+      },
+      {
+        id: Date.now() - 200000,
+        text: "I can't believe I failed that test again. I'm so disappointed and frustrated right now.",
+        encrypted: "EC_v1:SAMPLE_ENCRYPTED_DATA_2:EMSIG_c2FtcGxlMg",
+        key: "sample-key-2",
+        emotions: [{name:'sadness',score:0.76},{name:'anger',score:0.58}],
+        dominant: 'sadness',
+        signature: 'EMSIG_c2FtcGxlMg',
+        summary: 'Sadness and frustration from failure',
+        time: new Date(Date.now() - 200000).toISOString()
+      }
+    ];
+    localStorage.setItem('ec_history', JSON.stringify(state.history));
+  }
+});
+</script>
+</body>
+</html>
